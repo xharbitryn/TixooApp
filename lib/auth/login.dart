@@ -201,7 +201,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).clearSnackBars();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        // 🚀 FIX: Changed to MainNavBar
+        MaterialPageRoute(builder: (context) => const MainNavBar()),
       );
     }
   }
@@ -221,7 +222,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    // Centralized Padding logic from Responsive class
     final double paddingValue = Responsive.s(context, 24.0);
 
     return Scaffold(
@@ -242,7 +242,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     ),
                     child: IntrinsicHeight(
                       child: Center(
-                        // CENTER + CONSTRAIN for iPad/Tablet
                         child: Container(
                           constraints: Responsive.formConstraints(context),
                           padding: EdgeInsets.symmetric(
@@ -255,7 +254,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // SKIP BUTTON
                                   Align(
                                     alignment: Alignment.topRight,
                                     child: Padding(
@@ -269,10 +267,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
                                   Spacer(flex: size.height < 700 ? 1 : 2),
-
-                                  // HEADER
                                   ShaderMask(
                                     shaderCallback: (bounds) {
                                       return LinearGradient(
@@ -315,10 +310,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       color: Colors.white54,
                                     ),
                                   ),
-
                                   SizedBox(height: Responsive.s(context, 40)),
-
-                                  // INPUTS
                                   PremiumAuthField(
                                     controller: emailController,
                                     label: "Email Address",
@@ -330,7 +322,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     isValid: _isEmailValid,
                                   ),
                                   SizedBox(height: Responsive.s(context, 16)),
-
                                   PremiumAuthField(
                                     controller: passwordController,
                                     label: "Password",
@@ -348,8 +339,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
-                                  // FORGOT PASSWORD
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: TextButton(
@@ -364,8 +353,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: Responsive.s(context, 20)),
-
-                                  // SIGN IN BUTTON
                                   ScaleButton(
                                     onTap: _canSubmit ? login : null,
                                     child: AnimatedContainer(
@@ -429,10 +416,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
                                   SizedBox(height: Responsive.s(context, 24)),
-
-                                  // DIVIDER
                                   Row(
                                     children: [
                                       Expanded(
@@ -462,8 +446,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     ],
                                   ),
                                   SizedBox(height: Responsive.s(context, 24)),
-
-                                  // SOCIAL BUTTONS
                                   ScaleButton(
                                     onTap: isLoading ? null : signInWithGoogle,
                                     child: Container(
@@ -584,10 +566,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
                                   Spacer(flex: 3),
-
-                                  // FOOTER
                                   Padding(
                                     padding: EdgeInsets.only(
                                       bottom: Responsive.s(context, 20.0),

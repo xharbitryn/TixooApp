@@ -28,7 +28,7 @@ class AuthService {
     }
   }
 
-  // --- NEW: CHECK IF EMAIL EXISTS ---
+  // --- CHECK IF EMAIL EXISTS ---
   Future<bool> checkEmailExists(String email) async {
     try {
       final query = await FirebaseFirestore.instance
@@ -42,15 +42,26 @@ class AuthService {
     }
   }
 
-  // --- CHECK PHONE EXISTS ---
-  Future<bool> checkPhoneExists(String phoneNumber) async {
+  // --- CHECK PHONE EXISTS (UPDATED FIX) ---
+  Future<bool> checkPhoneExists(String fullNumber, String rawNumber) async {
     try {
-      final query = await FirebaseFirestore.instance
+      // 1. Check for 'phoneNumber' (saved with country code)
+      final query1 = await FirebaseFirestore.instance
           .collection('Users')
-          .where('phoneNumber', isEqualTo: phoneNumber)
+          .where('phoneNumber', isEqualTo: fullNumber)
           .limit(1)
           .get();
-      return query.docs.isNotEmpty;
+
+      if (query1.docs.isNotEmpty) return true;
+
+      // 2. Check for 'phone' (saved without country code during signup)
+      final query2 = await FirebaseFirestore.instance
+          .collection('Users')
+          .where('phone', isEqualTo: rawNumber)
+          .limit(1)
+          .get();
+
+      return query2.docs.isNotEmpty;
     } catch (e) {
       return false;
     }

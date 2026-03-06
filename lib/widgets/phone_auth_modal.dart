@@ -44,7 +44,7 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
     final fullNumber = "$_selectedCountryCode$phone";
 
     if (widget.isLoginMode) {
-      final exists = await _authService.checkPhoneExists(fullNumber);
+      final exists = await _authService.checkPhoneExists(fullNumber, phone);
       if (!exists) {
         setState(() => _isLoading = false);
         _showLocalError("Looks like you're new! Redirecting to Sign Up...");
@@ -128,6 +128,8 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
   }
 
   void _showLocalError(String msg) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     _localMessengerKey.currentState?.removeCurrentSnackBar();
     _localMessengerKey.currentState?.showSnackBar(
       SnackBar(
@@ -140,7 +142,7 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
         ),
         backgroundColor: kTixooLightGreen,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        margin: EdgeInsets.only(bottom: bottomInset + 20, left: 16, right: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),
       ),
@@ -175,7 +177,7 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
     );
 
     final pinTheme = PinTheme(
-      width: 50,
+      width: 46,
       height: 55,
       textStyle: GoogleFonts.poppins(
         fontSize: 22,
@@ -193,11 +195,12 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
       key: _localMessengerKey,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: Align(
           alignment: Alignment.bottomCenter,
-          child: Center(
+          child: SingleChildScrollView(
             child: Container(
+              width: double.infinity,
               constraints: const BoxConstraints(maxWidth: 500),
               padding: EdgeInsets.only(
                 left: 24,
@@ -210,265 +213,264 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 border: Border(top: BorderSide(color: Colors.white10)),
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
 
+                  Text(
+                    _step == 1 ? "Enter Mobile Number" : "Verify OTP",
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  if (_step == 1)
                     Text(
-                      _step == 1 ? "Enter Mobile Number" : "Verify OTP",
+                      "We'll send a verification code to your number.",
                       style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontSize: 14,
+                        color: Colors.white54,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    if (_step == 1)
-                      Text(
-                        "We'll send a verification code to your number.",
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.white54,
+                    )
+                  else
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          "Code sent to ",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.white54,
+                          ),
                         ),
-                      )
-                    else
-                      Row(
-                        children: [
-                          Text(
-                            "Code sent to ",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.white54,
+                        GestureDetector(
+                          onTap: _editPhoneNumber,
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "$_selectedCountryCode ${_phoneController.text} ",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: kTixooLightGreen,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.edit_rounded,
+                                  size: 14,
+                                  color: kTixooLightGreen,
+                                ),
+                              ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: _editPhoneNumber,
-                            child: Container(
-                              color: Colors.transparent,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "$_selectedCountryCode ${_phoneController.text} ",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: kTixooLightGreen,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.edit_rounded,
-                                    size: 14,
-                                    color: kTixooLightGreen,
+                        ),
+                      ],
+                    ),
+
+                  const SizedBox(height: 30),
+
+                  if (_step == 1) ...[
+                    Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF151515),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: Row(
+                        children: [
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              primaryColor: kTixooLightGreen,
+                              colorScheme: const ColorScheme.dark(
+                                primary: kTixooLightGreen,
+                                surface: Color(0xFF1E1E1E),
+                                onSurface: Colors.white,
+                              ),
+                              // 🚀 FIX: Used dialogBackgroundColor instead of dialogTheme
+                              dialogBackgroundColor: const Color(0xFF1E1E1E),
+                            ),
+                            child: CountryCodePicker(
+                              onChanged: (c) => setState(
+                                () => _selectedCountryCode = c.dialCode!,
+                              ),
+                              initialSelection: 'IN',
+                              favorite: const ['+91', 'US'],
+                              textStyle: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              dialogTextStyle: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              searchStyle: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              searchDecoration: searchInputDecoration,
+                              boxDecoration: BoxDecoration(
+                                color: const Color(0xFF1E1E1E),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    blurRadius: 20,
                                   ),
                                 ],
+                              ),
+                              closeIcon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                              barrierColor: Colors.black.withOpacity(0.85),
+                              showFlag: true,
+                              showDropDownButton: true,
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 30,
+                            color: Colors.white10,
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _phoneController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              style: GoogleFonts.spaceMono(
+                                color: Colors.white,
+                                fontSize: 18,
+                                letterSpacing: 2.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: "00000 00000",
+                                hintStyle: GoogleFonts.spaceMono(
+                                  color: Colors.white12,
+                                  letterSpacing: 2.0,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
+                    ),
+                  ],
 
-                    const SizedBox(height: 30),
-
-                    if (_step == 1) ...[
-                      Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF151515),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white10),
-                        ),
-                        child: Row(
-                          children: [
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                dialogBackgroundColor: const Color(0xFF1E1E1E),
-                                primaryColor: kTixooLightGreen,
-                                colorScheme: const ColorScheme.dark(
-                                  primary: kTixooLightGreen,
-                                  surface: Color(0xFF1E1E1E),
-                                  onSurface: Colors.white,
-                                ),
+                  if (_step == 2) ...[
+                    Center(
+                      child: Pinput(
+                        controller: _otpController,
+                        length: 6,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        defaultPinTheme: pinTheme,
+                        focusedPinTheme: pinTheme.copyWith(
+                          decoration: pinTheme.decoration!.copyWith(
+                            border: Border.all(color: kTixooLightGreen),
+                            boxShadow: [
+                              BoxShadow(
+                                color: kTixooLightGreen.withOpacity(0.2),
+                                blurRadius: 15,
                               ),
-                              child: CountryCodePicker(
-                                onChanged: (c) => setState(
-                                  () => _selectedCountryCode = c.dialCode!,
-                                ),
-                                initialSelection: 'IN',
-                                favorite: const ['+91', 'US'],
-                                textStyle: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                dialogTextStyle: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                searchStyle: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                searchDecoration: searchInputDecoration,
-                                boxDecoration: BoxDecoration(
-                                  color: const Color(0xFF1E1E1E),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.white10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 20,
-                                    ),
-                                  ],
-                                ),
-                                closeIcon: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                ),
-                                barrierColor: Colors.black.withOpacity(0.85),
-                                showFlag: true,
-                                showDropDownButton: true,
-                                padding: EdgeInsets.zero,
-                              ),
-                            ),
-                            Container(
-                              width: 1,
-                              height: 30,
-                              color: Colors.white10,
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                style: GoogleFonts.spaceMono(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  letterSpacing: 2.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: "00000 00000",
-                                  hintStyle: GoogleFonts.spaceMono(
-                                    color: Colors.white12,
-                                    letterSpacing: 2.0,
-                                  ),
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    if (_step == 2) ...[
-                      Center(
-                        child: Pinput(
-                          controller: _otpController,
-                          length: 6,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          defaultPinTheme: pinTheme,
-                          focusedPinTheme: pinTheme.copyWith(
-                            decoration: pinTheme.decoration!.copyWith(
-                              border: Border.all(color: kTixooLightGreen),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: kTixooLightGreen.withOpacity(0.2),
-                                  blurRadius: 15,
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
-                          onCompleted: (_) => _verifyOTP(),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: _start > 0
-                            ? Text(
-                                "Resend in 00:${_start.toString().padLeft(2, '0')}",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white38,
-                                ),
-                              )
-                            : GestureDetector(
-                                onTap: _processPhoneNumber,
-                                child: Text(
-                                  "Resend Code",
-                                  style: GoogleFonts.poppins(
-                                    color: kTixooLightGreen,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 32),
-
-                    ScaleButton(
-                      onTap: _isLoading
-                          ? null
-                          : (_step == 1 ? _processPhoneNumber : _verifyOTP),
-                      child: Container(
-                        height: 56,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: kTixooLightGreen,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: kTixooLightGreen.withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.black,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  _step == 1 ? "Continue" : "Verify",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                        ),
+                        onCompleted: (_) => _verifyOTP(),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: _start > 0
+                          ? Text(
+                              "Resend in 00:${_start.toString().padLeft(2, '0')}",
+                              style: GoogleFonts.poppins(color: Colors.white38),
+                            )
+                          : GestureDetector(
+                              onTap: _processPhoneNumber,
+                              child: Text(
+                                "Resend Code",
+                                style: GoogleFonts.poppins(
+                                  color: kTixooLightGreen,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                    ),
                   ],
-                ),
+
+                  const SizedBox(height: 32),
+
+                  ScaleButton(
+                    onTap: _isLoading
+                        ? null
+                        : (_step == 1 ? _processPhoneNumber : _verifyOTP),
+                    child: Container(
+                      height: 56,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: kTixooLightGreen,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: kTixooLightGreen.withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.black,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                _step == 1 ? "Continue" : "Verify",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
           ),

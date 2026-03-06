@@ -16,7 +16,6 @@ class TicketDetailsPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedTickets;
   final String paymentId;
   final double totalAmount;
-  // New optional parameters for existing ticket navigation
   final String? existingTicketId;
   final bool isExistingTicket;
 
@@ -52,14 +51,12 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
     _scrollController.addListener(_onScroll);
 
     if (widget.isExistingTicket) {
-      // If viewing existing ticket, don't create new ticket or show confetti
       setState(() {
         ticketIds = [widget.existingTicketId!];
         isCreatingTicket = false;
       });
       _generateQRData();
     } else {
-      // If this is a new ticket purchase, create ticket and show confetti
       _createTicketsAndShowConfetti();
     }
   }
@@ -103,13 +100,12 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Get event data first to store additional details
         final eventDoc = await FirebaseFirestore.instance
             .collection('Events')
             .doc(widget.eventId)
             .get();
         final eventData = eventDoc.data() as Map<String, dynamic>;
-        // Create single ticket document for the entire purchase
+
         final ticketRef = await FirebaseFirestore.instance
             .collection('Users')
             .doc(user.uid)
@@ -118,8 +114,7 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
               'eventId': widget.eventId,
               'eventCategory': eventData['eventCategory'],
               'eventName': eventData['name'] ?? 'Event Name',
-              'selectedTickets': widget
-                  .selectedTickets, // Store all ticket types and quantities
+              'selectedTickets': widget.selectedTickets,
               'totalAmount': widget.totalAmount,
               'location': eventData['location'] ?? 'Location TBA',
               'startTime': eventData['startTime'],
@@ -129,7 +124,7 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
               'userId': user.uid,
               'paymentId': widget.paymentId,
             });
-        // Also create a document in the general 'bookings' collection
+
         await FirebaseFirestore.instance
             .collection('bookings')
             .doc(ticketRef.id)
@@ -149,12 +144,11 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
               'paymentId': widget.paymentId,
             });
         setState(() {
-          ticketIds = [ticketRef.id]; // Single ticket ID
+          ticketIds = [ticketRef.id];
           isCreatingTicket = false;
         });
-        // Generate QR data after ticket creation
+
         _generateQRData();
-        // Start confetti animation only for new purchases
         _confettiController.play();
       }
     } catch (e) {
@@ -190,7 +184,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          // Removed white color, make it transparent
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(size > 50 ? 12 : 8),
         ),
@@ -205,14 +198,13 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
       height: size,
       padding: EdgeInsets.all(size > 50 ? 4 : 2),
       decoration: BoxDecoration(
-        // Removed white background
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(size > 50 ? 4 : 8),
       ),
       child: QrImageView(
         data: qrData!,
         version: QrVersions.auto,
-        backgroundColor: Colors.transparent, // ✅ make QR itself transparent
+        backgroundColor: Colors.transparent,
         eyeStyle: const QrEyeStyle(
           eyeShape: QrEyeShape.square,
           color: Colors.grey,
@@ -226,7 +218,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
   }
 
   Widget _buildCompactTicket(Map<String, dynamic> data) {
-    // Handle Timestamp conversion
     String formattedDateTime = '';
     if (data['startTime'] != null) {
       if (data['startTime'] is Timestamp) {
@@ -251,7 +242,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              // Expand indicator
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -283,8 +273,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                   ),
                 ],
               ),
-
-              // Event Title
               Text(
                 data['name'] ?? 'Event Name',
                 style: GoogleFonts.poppins(
@@ -296,7 +284,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
-              // Location
               Row(
                 children: [
                   const Icon(
@@ -319,7 +306,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 ],
               ),
               const SizedBox(height: 6),
-              // Date & Time
               Row(
                 children: [
                   const Icon(
@@ -344,7 +330,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Booking ID and QR Code
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -374,7 +359,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                       ),
                     ],
                   ),
-                  // QR Code - Increased size from 60 to 80
                   _buildQRCode(size: 100),
                 ],
               ),
@@ -386,7 +370,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
   }
 
   Widget _buildFullTicket(Map<String, dynamic> data) {
-    // Handle Timestamp conversion
     String formattedDateTime = '';
     if (data['startTime'] != null) {
       if (data['startTime'] is Timestamp) {
@@ -410,7 +393,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Collapse indicator
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -446,7 +428,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Event Poster
               if (data['poster'] != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -462,7 +443,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                   ),
                 ),
               const SizedBox(height: 20),
-              // Event Title
               Text(
                 data['name'] ?? 'Event Name',
                 style: GoogleFonts.poppins(
@@ -474,7 +454,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 16),
-              // Detailed Ticket Types Display
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.selectedTickets
@@ -494,7 +473,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Category Header
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -528,16 +506,13 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            // Individual Ticket IDs
                             if (ticket['ticketIds'] != null &&
                                 (ticket['ticketIds'] as List).isNotEmpty) ...[
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
                                 children:
-                                    List<String>.from(
-                                          ticket['ticketIds'] ?? [],
-                                        ) // ✅ Safe conversion
+                                    List<String>.from(ticket['ticketIds'] ?? [])
                                         .map(
                                           (ticketId) => Container(
                                             padding: const EdgeInsets.symmetric(
@@ -580,7 +555,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                                 ),
                               ),
                             const SizedBox(height: 8),
-                            // Price info
                             Text(
                               '₹${ticket['price']} each • Total: ₹${ticket['totalPrice']}',
                               style: GoogleFonts.poppins(
@@ -595,7 +569,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                     .toList(),
               ),
               const SizedBox(height: 16),
-              // Location
               Row(
                 children: [
                   const Icon(
@@ -618,7 +591,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 ],
               ),
               const SizedBox(height: 8),
-              // Date & Time
               Row(
                 children: [
                   const Icon(
@@ -643,14 +615,12 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Dotted divider
               SizedBox(
                 height: 1,
                 width: double.infinity,
                 child: CustomPaint(painter: DottedLinePainter()),
               ),
               const SizedBox(height: 20),
-              // Ticket ID and QR Code
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -690,12 +660,10 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                       ],
                     ),
                   ),
-                  // QR Code
                   _buildQRCode(size: 100),
                 ],
               ),
               const SizedBox(height: 20),
-              // Ticket Status
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -729,7 +697,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
       backgroundColor: const Color(0xFF0A0A0A),
       body: Stack(
         children: [
-          // Main content
           FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance
                 .collection('Events')
@@ -747,7 +714,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
               return SafeArea(
                 child: Column(
                   children: [
-                    // Header
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Row(
@@ -776,14 +742,12 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                         ],
                       ),
                     ),
-                    // Scrollable content
                     Expanded(
                       child: SingleChildScrollView(
                         controller: _scrollController,
                         child: Column(
                           children: [
                             const SizedBox(height: 20),
-                            // Animated ticket container
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               child: showCompactTicket
@@ -793,7 +757,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                             const SizedBox(height: 20),
                             OffersSection(),
                             SizedBox(height: 30),
-                            // Purchase Summary (always visible)
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.symmetric(
@@ -889,7 +852,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                               ),
                             ),
                             const SizedBox(height: 20),
-                            // Navigation Button
                             Container(
                               width: double.infinity,
                               height: 50,
@@ -903,9 +865,10 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                                   } else {
                                     Navigator.pushAndRemoveUntil(
                                       context,
+                                      // 🚀 FIX: Changed to MainNavBar
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const HomePage(initialIndex: 2),
+                                            const MainNavBar(initialIndex: 2),
                                       ),
                                       (route) => false,
                                     );
@@ -940,7 +903,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
               );
             },
           ),
-          // Confetti animation - only show for new purchases
           if (!widget.isExistingTicket)
             Align(
               alignment: Alignment.topCenter,
@@ -968,7 +930,6 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
   }
 }
 
-// Custom painter for ticket shape
 class TicketShapePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -986,13 +947,11 @@ class TicketShapePainter extends CustomPainter {
 
     const double radius = 12.0;
     const double notchRadius = 15.0;
-    const double notchOffset = 60.0; // Distance from top for the side notches
+    const double notchOffset = 60.0;
 
-    // Start from top-left
     path.moveTo(radius, 0);
     borderPath.moveTo(radius, 0);
 
-    // Top edge with rounded corners
     path.lineTo(size.width - radius, 0);
     path.arcToPoint(
       Offset(size.width, radius),
@@ -1005,9 +964,7 @@ class TicketShapePainter extends CustomPainter {
       radius: const Radius.circular(radius),
     );
 
-    // Right edge with notch
     path.lineTo(size.width, notchOffset);
-    // Create semi-circle notch on the right
     path.arcToPoint(
       Offset(size.width, notchOffset + notchRadius * 2),
       radius: const Radius.circular(notchRadius),
@@ -1023,18 +980,15 @@ class TicketShapePainter extends CustomPainter {
     );
     borderPath.lineTo(size.width, size.height - radius);
 
-    // Bottom-right corner
     path.arcToPoint(
       Offset(size.width - radius, size.height),
       radius: const Radius.circular(radius),
     );
-
     borderPath.arcToPoint(
       Offset(size.width - radius, size.height),
       radius: const Radius.circular(radius),
     );
 
-    // Bottom edge
     path.lineTo(radius, size.height);
     path.arcToPoint(
       Offset(0, size.height - radius),
@@ -1047,9 +1001,7 @@ class TicketShapePainter extends CustomPainter {
       radius: const Radius.circular(radius),
     );
 
-    // Left edge with notch
     path.lineTo(0, notchOffset + notchRadius * 2);
-    // Create semi-circle notch on the left
     path.arcToPoint(
       Offset(0, notchOffset),
       radius: const Radius.circular(notchRadius),
@@ -1065,9 +1017,7 @@ class TicketShapePainter extends CustomPainter {
     );
     borderPath.lineTo(0, radius);
 
-    // Top-left corner
     path.arcToPoint(Offset(radius, 0), radius: const Radius.circular(radius));
-
     borderPath.arcToPoint(
       Offset(radius, 0),
       radius: const Radius.circular(radius),
@@ -1076,10 +1026,7 @@ class TicketShapePainter extends CustomPainter {
     path.close();
     borderPath.close();
 
-    // Draw the filled shape
     canvas.drawPath(path, paint);
-
-    // Draw the border
     canvas.drawPath(borderPath, borderPaint);
   }
 
@@ -1087,7 +1034,6 @@ class TicketShapePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-// Custom painter for dotted line
 class DottedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

@@ -56,7 +56,6 @@ class _OTPPageState extends State<OTPPage> {
         _focusNodes[index + 1].requestFocus();
       }
     } else {
-      // Handle backspace - move to previous field
       if (index > 0) {
         _focusNodes[index - 1].requestFocus();
       }
@@ -103,7 +102,8 @@ class _OTPPageState extends State<OTPPage> {
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        // 🚀 FIX: Changed to MainNavBar
+        MaterialPageRoute(builder: (_) => const MainNavBar()),
         (route) => false,
       );
     } on FirebaseAuthException catch (e) {
@@ -180,8 +180,6 @@ class _OTPPageState extends State<OTPPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // OTP Boxes in one line
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(6, (index) {
@@ -193,9 +191,7 @@ class _OTPPageState extends State<OTPPage> {
                     );
                   }),
                 ),
-
                 const SizedBox(height: 24),
-
                 Center(
                   child: Wrap(
                     alignment: WrapAlignment.center,
@@ -221,9 +217,7 @@ class _OTPPageState extends State<OTPPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 32),
-
                 Center(
                   child: NeoPopButton(
                     color: const Color(0xFFB7FF1C),
@@ -251,10 +245,7 @@ class _OTPPageState extends State<OTPPage> {
                     ),
                   ),
                 ),
-
-                // Add extra space at bottom to ensure content is scrollable
-                const SizedBox(height: 50),
-                const SizedBox(height: 60),
+                const SizedBox(height: 110),
                 Center(
                   child: Text(
                     'Drix Entertainment Pvt. Ltd.',

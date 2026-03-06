@@ -2,33 +2,23 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tixxo/constants/app_colors.dart';
-import 'package:tixxo/models/home_models.dart';
-import 'package:tixxo/utils/responsive.dart';
-import 'package:tixxo/utils/gradient_text.dart';
-import 'package:tixxo/widgets/section_header.dart';
 
-/// Trending this week carousel — Figma-accurate implementation.
-///
-/// Figma specs:
-/// - Card: W 290, H 500, radius 30
-/// - Card shadow: #000000 7%, blur 24.6, spread 7, X:0 Y:5
-/// - Image inside card: W 272, H 340 (mixed radius)
-/// - Pop animation: center card rises up, side cards dip down
-/// - Auto-slide with 4s interval, pauses on user interaction
-/// - Infinite scroll when fewer events to maintain animation feel
-///
-/// Text specs:
-/// - Date: Poppins Regular 10, #15612E, LH 18
-/// - Title: Poppins Bold 16, gradient #000→#848484, LH 120%
-/// - Location: Poppins Regular 12, #181D27 50%, LH 18
-/// - Price: Poppins SemiBold 12, #181D27, LH 18
-/// - Navigation arrow: #15612E, 16×16
-/// - Divider line: gradient #535353→#FFFFFF, W 235 H 1
+// Changed to relative imports for production compatibility!
+import '../constants/app_colors.dart';
+import '../models/home_models.dart';
+import '../utils/responsive.dart';
+import '../utils/gradient_text.dart';
+import '../widgets/section_header.dart';
+
 class TrendingSection extends StatefulWidget {
   final List<TrendingEvent> events;
+  final Function(TrendingEvent)? onEventTap; // 🚀 ADDED: Tap callback
 
-  const TrendingSection({super.key, required this.events});
+  const TrendingSection({
+    super.key,
+    required this.events,
+    this.onEventTap, // 🚀 ADDED: Tap callback
+  });
 
   @override
   State<TrendingSection> createState() => _TrendingSectionState();
@@ -168,164 +158,165 @@ class _TrendingSectionState extends State<TrendingSection> {
         scale: scale,
         child: Opacity(
           opacity: opacity.clamp(0.0, 1.0),
-          child: Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: r.w(6),
-              vertical: r.h(20), // Space for pop animation travel
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              // Figma: radius 30
-              borderRadius: BorderRadius.circular(r.radius(30)),
-              // Figma shadow: #000000 7%, blur 24.6, spread 7, X:0 Y:5
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.trendingCardShadow,
-                  blurRadius: r.h(24.6),
-                  spreadRadius: r.h(7),
-                  offset: Offset(0, r.h(5)),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ─── Event Image ────────────────────────────────
-                // Figma: W 272, H 340 inside card
-                Expanded(
-                  flex: 340,
-                  child: Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(r.w(9)),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(r.radius(22)),
-                      color: const Color(0xFFE8E8E8),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      event.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 40,
-                          color: Colors.grey,
+          child: GestureDetector(
+            // 🚀 ADDED: Triggers the navigation to Event Details!
+            onTap: () {
+              if (widget.onEventTap != null) {
+                widget.onEventTap!(event);
+              }
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: r.w(6),
+                vertical: r.h(20), // Space for pop animation travel
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                // Figma: radius 30
+                borderRadius: BorderRadius.circular(r.radius(30)),
+                // Figma shadow: #000000 7%, blur 24.6, spread 7, X:0 Y:5
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.trendingCardShadow,
+                    blurRadius: r.h(24.6),
+                    spreadRadius: r.h(7),
+                    offset: Offset(0, r.h(5)),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ─── Event Image ────────────────────────────────
+                  Expanded(
+                    flex: 340,
+                    child: Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(r.w(9)),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(r.radius(22)),
+                        color: const Color(0xFFE8E8E8),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.network(
+                        event.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Center(
+                          child: Icon(
+                            Icons.image_outlined,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                // ─── Event Details ──────────────────────────────
-                Expanded(
-                  flex: 160,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: r.w(18),
-                      vertical: r.h(6),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Date — Poppins Regular 10, #15612E, LH 18
-                        Text(
-                          event.dateTime,
-                          style: GoogleFonts.poppins(
-                            fontSize: r.sp(10),
-                            fontWeight: FontWeight.w400,
-                            height: 18 / 10,
-                            letterSpacing: 0,
-                            color: AppColors.trendingDateColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        SizedBox(height: r.h(4)),
-
-                        // Title — Poppins Bold 16, gradient #000→#848484
-                        Flexible(
-                          child: GradientText(
-                            text: event.title,
+                  // ─── Event Details ──────────────────────────────
+                  Expanded(
+                    flex: 160,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: r.w(18),
+                        vertical: r.h(6),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event.dateTime,
                             style: GoogleFonts.poppins(
-                              fontSize: r.sp(16),
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
+                              fontSize: r.sp(10),
+                              fontWeight: FontWeight.w400,
+                              height: 18 / 10,
                               letterSpacing: 0,
+                              color: AppColors.trendingDateColor,
                             ),
-                            colors: AppColors.trendingTitleGradient,
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ),
 
-                        SizedBox(height: r.h(4)),
+                          SizedBox(height: r.h(4)),
 
-                        // Divider — gradient #535353→#FFFFFF, H 1
-                        Container(
-                          height: r.h(1),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [Color(0xFF535353), Color(0xFFFFFFFF)],
+                          Flexible(
+                            child: GradientText(
+                              text: event.title,
+                              style: GoogleFonts.poppins(
+                                fontSize: r.sp(16),
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                                letterSpacing: 0,
+                              ),
+                              colors: AppColors.trendingTitleGradient,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
 
-                        SizedBox(height: r.h(4)),
+                          SizedBox(height: r.h(4)),
 
-                        // Location + Navigation arrow
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              size: r.sp(12),
-                              color: AppColors.trendingLocationColor
-                                  .withOpacity(0.5),
-                            ),
-                            SizedBox(width: r.w(2)),
-                            Expanded(
-                              child: Text(
-                                '${event.venue}, ${event.city}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: r.sp(12),
-                                  fontWeight: FontWeight.w400,
-                                  height: 18 / 12,
-                                  color: AppColors.trendingLocationColor
-                                      .withOpacity(0.5),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          Container(
+                            height: r.h(1),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [Color(0xFF535353), Color(0xFFFFFFFF)],
                               ),
                             ),
-                            // Navigation arrow — #15612E, 16×16
-                            Icon(
-                              Icons.near_me_rounded,
-                              color: AppColors.trendingArrowColor,
-                              size: r.sp(16),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: r.h(4)),
-
-                        // Price — Poppins SemiBold 12, #181D27
-                        Text(
-                          event.priceFormatted,
-                          style: GoogleFonts.poppins(
-                            fontSize: r.sp(12),
-                            fontWeight: FontWeight.w600,
-                            height: 18 / 12,
-                            color: AppColors.trendingPriceColor,
                           ),
-                        ),
-                      ],
+
+                          SizedBox(height: r.h(4)),
+
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: r.sp(12),
+                                color: AppColors.trendingLocationColor
+                                    .withOpacity(0.5),
+                              ),
+                              SizedBox(width: r.w(2)),
+                              Expanded(
+                                child: Text(
+                                  '${event.venue}, ${event.city}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: r.sp(12),
+                                    fontWeight: FontWeight.w400,
+                                    height: 18 / 12,
+                                    color: AppColors.trendingLocationColor
+                                        .withOpacity(0.5),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Icon(
+                                Icons.near_me_rounded,
+                                color: AppColors.trendingArrowColor,
+                                size: r.sp(16),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: r.h(4)),
+
+                          Text(
+                            event.priceFormatted,
+                            style: GoogleFonts.poppins(
+                              fontSize: r.sp(12),
+                              fontWeight: FontWeight.w600,
+                              height: 18 / 12,
+                              color: AppColors.trendingPriceColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

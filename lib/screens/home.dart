@@ -10,6 +10,12 @@ import '../models/home_models.dart';
 import '../utils/responsive.dart';
 import '../providers/home_provider.dart';
 
+// 🚀 Production Route Imports
+import '../supportive_pages/event_details.dart';
+import '../supportive_pages/ticket_selection.dart';
+import '../supportive_pages/artist_detail.dart';
+import '../supportive_pages/promoter_detail.dart';
+
 // Sandbox Widgets
 import '../widgets/all_events_section.dart';
 import '../widgets/artists_section.dart';
@@ -87,7 +93,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       country: 'India',
                     ),
                     isPlusUser: _isPlusUser,
-                    // FIX: Pointing to the correct animation file
                     lottieSource: 'assets/animations/happy_banner.json',
                     bgGradientStart: const Color(0xFFFFF5E1),
                     bgGradientEnd: const Color(0xFFFFB347),
@@ -99,7 +104,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 SliverToBoxAdapter(child: SizedBox(height: r.h(32))),
 
-                // If DB is totally empty, show a nice fallback message so we know it didn't crash
                 if (data.allEvents.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -118,7 +122,19 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 if (_isAllSelected && data.trendingEvents.isNotEmpty)
                   SliverToBoxAdapter(
-                    child: TrendingSection(events: data.trendingEvents),
+                    child: TrendingSection(
+                      events: data.trendingEvents,
+                      // Hooking up routing if your Trending widget supports it:
+                      onEventTap: (event) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EventPage(eventId: event.id.toString()),
+                          ),
+                        );
+                      },
+                    ),
                   ),
 
                 SliverToBoxAdapter(child: SizedBox(height: r.h(8))),
@@ -128,7 +144,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: ArtistsSection(
                       artists: data.artists,
                       onSeeAllTap: () {},
-                      onArtistTap: (artist) {},
+                      onArtistTap: (artist) {
+                        // 🚀 Routes to Production Artist Screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ArtistDetailPage(
+                              artistId: artist.id.toString(),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
@@ -140,8 +166,27 @@ class _HomePageState extends ConsumerState<HomePage> {
                       events: data.allEvents,
                       selectedFilterIndex: _selectedFilterIndex,
                       onFilterSelected: _onFilterSelected,
-                      onEventTap: (event) {},
-                      onBookNowTap: (event) {},
+                      onEventTap: (event) {
+                        // 🚀 Routes to the new EventPage we just built!
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EventPage(eventId: event.id.toString()),
+                          ),
+                        );
+                      },
+                      onBookNowTap: (event) {
+                        // 🚀 Routes directly to Ticket Selection
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TicketSelectionPage(
+                              eventId: event.id.toString(),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
@@ -176,7 +221,20 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: PromotersSection(
                       promoters: data.promoters,
                       onSeeAllTap: () {},
-                      onPromoterTap: (promoter) {},
+                      onPromoterTap: (promoter) {
+                        // 🚀 Routes to Production Promoter Screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PromoterDetailsPage(
+                              uid: promoter.id.toString(),
+                              displayName: promoter.name ?? 'Organizer',
+                              email: '',
+                              photoURL: promoter.imageUrl ?? '',
+                            ),
+                          ),
+                        );
+                      },
                       onExploreTap: (promoter) {},
                     ),
                   ),

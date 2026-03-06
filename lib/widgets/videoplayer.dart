@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class AutoPlayVideo extends StatefulWidget {
   final String videoUrl;
@@ -25,7 +24,7 @@ class AutoPlayVideo extends StatefulWidget {
 class _AutoPlayVideoState extends State<AutoPlayVideo>
     with WidgetsBindingObserver {
   late VideoPlayerController _controller;
-  bool _isVisible = false;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -36,25 +35,28 @@ class _AutoPlayVideoState extends State<AutoPlayVideo>
       ..setLooping(true)
       ..setVolume(widget.muted ? 0 : 1)
       ..initialize().then((_) {
-        if (mounted && widget.autoplay && _isVisible) {
+        if (mounted && widget.autoplay && !_isDisposed) {
           _controller.play();
+          setState(() {});
         }
-        setState(() {}); // refresh once initialized
       });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isDisposed) return;
+
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       _controller.pause();
-    } else if (state == AppLifecycleState.resumed && _isVisible) {
+    } else if (state == AppLifecycleState.resumed) {
       if (widget.autoplay) _controller.play();
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
@@ -65,37 +67,28 @@ class _AutoPlayVideoState extends State<AutoPlayVideo>
   @override
   Widget build(BuildContext context) {
     if (!_controller.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+      return const Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Color(0xFF4EB152),
+        ),
+      );
     }
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius ?? 0),
       child: Stack(
         children: [
-          VisibilityDetector(
-            key: ValueKey(widget.videoUrl), // stable key, not UniqueKey
-            onVisibilityChanged: (info) {
-              final visible = info.visibleFraction > 0.6;
-              _isVisible = visible;
-              if (visible && widget.autoplay) {
-                _controller.play();
-              } else {
-                _controller.pause();
-              }
-            },
-            child: SizedBox.expand(
-              child: FittedBox(
-                fit: widget.fit,
-                child: SizedBox(
-                  width: _controller.value.size.width,
-                  height: _controller.value.size.height,
-                  child: VideoPlayer(_controller),
-                ),
+          SizedBox.expand(
+            child: FittedBox(
+              fit: widget.fit,
+              child: SizedBox(
+                width: _controller.value.size.width,
+                height: _controller.value.size.height,
+                child: VideoPlayer(_controller),
               ),
             ),
           ),
-
-          // Mute toggle
           Positioned(
             top: 8,
             right: 8,
@@ -104,10 +97,13 @@ class _AutoPlayVideoState extends State<AutoPlayVideo>
                 backgroundColor: Colors.black54,
                 foregroundColor: Colors.white,
               ),
-              icon: Icon(_isMuted ? Icons.volume_off : Icons.volume_up),
+              icon: Icon(
+                _isMuted ? Icons.volume_off : Icons.volume_up,
+                size: 20,
+              ),
               onPressed: () {
-                final newVol = _isMuted ? 1.0 : 0.0;
-                _controller.setVolume(newVol);
+                if (_isDisposed) return;
+                _controller.setVolume(_isMuted ? 1.0 : 0.0);
                 setState(() {});
               },
             ),
