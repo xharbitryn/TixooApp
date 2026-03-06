@@ -1,0 +1,145 @@
+name: tixxo
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # --- UI & Layout Dependencies (Added from Sandbox) ---
+  flutter_riverpod: ^2.5.1
+  flutter_screenutil: ^5.9.0
+  lucide_icons: ^0.257.0
+
+  # --- Existing Production Dependencies ---
+  cupertino_icons: ^1.0.8
+  flutter_native_splash: ^2.4.6
+  cloud_firestore: ^5.6.12
+  google_sign_in: ^6.3.0
+  firebase_auth: ^5.7.0
+  google_fonts: ^8.0.2 # UPGRADED TO 8.0.2 (Fixes the Constant Evaluation crash)
+  neopop: ^1.0.2
+  intl: ^0.20.2
+  card_swiper: ^3.0.1
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+  geocoding: ^4.0.0
+  firebase_core: ^3.15.2
+  visibility_detector: ^0.4.0+2
+  google_nav_bar: ^5.0.7
+  firebase_storage: ^12.4.10
+  cached_network_image: ^3.4.1
+  carousel_slider: ^5.1.1
+  flutter_svg: ^2.2.0
+  image_picker: ^1.1.2
+  shared_preferences: ^2.5.3
+  youtube_player_flutter: ^9.1.2
+  flutter_rating_bar: ^4.0.1
+  razorpay_flutter: ^1.4.0
+  confetti: ^0.8.0
+  flutter_contacts: ^1.1.9+2
+  url_launcher: ^6.3.2
+  google_maps_flutter: ^2.12.3
+  font_awesome_flutter: ^10.9.1
+  video_player: ^2.10.0
+  chewie: ^1.12.1
+  share_plus: ^11.1.0
+  qr_flutter: ^4.1.0
+  lottie: ^3.1.0
+  sign_in_with_apple: ^6.1.0
+  crypto: ^3.0.3
+  country_code_picker: ^3.0.0
+  pinput: ^5.0.0
+  smooth_page_indicator: ^2.0.1
+  shimmer: ^3.0.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    # --- Sandbox Assets Added ---
+    - assets/lottie/
+    - assets/icons/
+    
+    # --- Existing Production Assets ---
+    - assets/animations/
+    - assets/images/
+    - assets/images/logo.jpeg
+    - assets/images/logo.png
+    - assets/images/poster.png
+    - assets/images/logoo.png
+    - assets/images/google.jpg
+    - assets/images/dj.jpg
+    - assets/images/sub.jpg
+    - assets/images/comic.jpg
+    - assets/images/comedy.png
+    - assets/images/drinks.jpg
+    - assets/images/bar.jpg
+    - assets/images/googlelogo.jpg
+    - assets/images/googlelogo.png
+    - assets/images/wlogo.jpeg
+    - assets/images/profile.jpeg
+    - assets/images/mumbai.png
+    - assets/images/add.png
+    - assets/images/delhi.png
+    - assets/images/haldwani.png
+    - assets/images/lucknow.png
+    - assets/images/music.png
+    - assets/images/Musicc.png
+    - assets/images/sports.png
+    - assets/images/play.png
+    - assets/images/poetry.png
+    - assets/images/magic.png
+    - assets/images/early.png
+    - assets/images/coin.png
+    - assets/images/off.png
+    - assets/images/club.png
+    - assets/images/events.png
+    - assets/images/cashback.png
+    - assets/images/vid3.mp4
+    - assets/images/vid4.mp4
+    - assets/images/vid2.mp4
+    - assets/images/vid1.mp4
+    - assets/images/greet.png
+    - assets/images/focus.png
+    - assets/images/hdfc.png
+    - assets/images/benefit1.png
+    - assets/images/benefit2.png
+    - assets/images/benefit3.png
+    - assets/images/logo.svg
+    - assets/images/workshop.png
+    - assets/icons/arrow.svg
+    - assets/images/spotify.svg
+    - assets/images/ytmusic.svg
+    - assets/images/yt.svg
+    - assets/images/sportsdisplay.png
+
+flutter_native_splash:
+  color: "#000000"  # Black background
+  image: assets/images/logoo.png # Path to your splash screen image
+  android: true  # Enable splash screen for Android
+  ios: true  # Enable splash screen for iOS
+  fullscreen: true  # Use full-screen splash
+
+  android_12:
+    color: "#000000"  # Black background
+    image: assets/images/logoo.png # Path to your splash screen image
+    android: true  # Enable splash screen for Android
+    ios: true  # Enable splash screen for iOS
+    fullscreen: true  # Use full-screen splash
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logoo.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
