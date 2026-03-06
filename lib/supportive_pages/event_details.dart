@@ -1511,9 +1511,9 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   _StickyTabBarDelegate({required this.child});
   @override
-  double get minExtent => 45.0;
+  double get minExtent => 44.0;
   @override
-  double get maxExtent => 45.0;
+  double get maxExtent => 44.0;
   @override
   Widget build(
     BuildContext context,
@@ -1638,21 +1638,28 @@ class _EventAboutSectionState extends State<_EventAboutSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🚀 THE FIX: Replaced AnimatedCrossFade entirely.
-          AnimatedSize(
+          AnimatedCrossFade(
             duration: const Duration(milliseconds: 200),
-            alignment: Alignment.topCenter,
-            child: Text(
+            crossFadeState: _isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: Text(
               widget.description,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: _AppColors.textSecondary,
                 height: 1.6,
               ),
-              maxLines: _isExpanded ? null : 6,
-              overflow: _isExpanded
-                  ? TextOverflow.visible
-                  : TextOverflow.ellipsis,
+              maxLines: 6,
+              overflow: TextOverflow.ellipsis,
+            ),
+            secondChild: Text(
+              widget.description,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: _AppColors.textSecondary,
+                height: 1.6,
+              ),
             ),
           ),
           const SizedBox(height: 8),
