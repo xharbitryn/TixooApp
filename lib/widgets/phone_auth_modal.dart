@@ -7,6 +7,7 @@ import 'package:pinput/pinput.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tixxo/auth/authservice.dart';
 import 'package:tixxo/auth/signup.dart';
+import 'package:tixxo/screens/navbar.dart';
 import 'package:tixxo/widgets/premium_auth_widgets.dart';
 import 'package:tixxo/widgets/cinematic_bg.dart';
 
@@ -79,7 +80,7 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
         _showLocalError(e.message ?? "Verification failed");
       },
       verificationCompleted: (credential) {
-        if (mounted) Navigator.pop(context);
+        // Auto-handled on Android
       },
       codeAutoRetrievalTimeout: (id) => _verificationId = id,
     );
@@ -98,11 +99,34 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
         smsCode: otp,
       );
       HapticFeedback.mediumImpact();
-      if (mounted) Navigator.pop(context);
+
+      // 🚀 FIX: Smooth, cinematic fade transition to the Base Screen
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainNavBar(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut,
+                    ),
+                    child: child,
+                  );
+                },
+            transitionDuration: const Duration(
+              milliseconds: 600,
+            ), // Smooth 0.6s fade
+          ),
+          (route) => false,
+        );
+      }
     } catch (e) {
       HapticFeedback.heavyImpact();
       _showLocalError("Invalid OTP");
-    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -305,7 +329,6 @@ class _PhoneAuthBottomSheetState extends State<PhoneAuthBottomSheet> {
                                 surface: Color(0xFF1E1E1E),
                                 onSurface: Colors.white,
                               ),
-                              // 🚀 FIX: Used dialogBackgroundColor instead of dialogTheme
                               dialogBackgroundColor: const Color(0xFF1E1E1E),
                             ),
                             child: CountryCodePicker(

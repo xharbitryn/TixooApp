@@ -201,7 +201,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).clearSnackBars();
       Navigator.pushReplacement(
         context,
-        // 🚀 FIX: Changed to MainNavBar
         MaterialPageRoute(builder: (context) => const MainNavBar()),
       );
     }
@@ -221,21 +220,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
     final double paddingValue = Responsive.s(context, 24.0);
 
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: CinematicBackground(
           controller: _liquidController,
           child: SafeArea(
+            // 🚀 FIX: LayoutBuilder + IntrinsicHeight guarantees NO OVERFLOWS while acting as a Single View
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
+                  physics:
+                      const ClampingScrollPhysics(), // Absorbs the 17px gently instead of crashing
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
@@ -246,6 +246,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           constraints: Responsive.formConstraints(context),
                           padding: EdgeInsets.symmetric(
                             horizontal: paddingValue,
+                            vertical: 16,
                           ),
                           child: FadeTransition(
                             opacity: _fadeAnimation,
@@ -256,18 +257,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 children: [
                                   Align(
                                     alignment: Alignment.topRight,
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        top: Responsive.s(context, 16.0),
-                                      ),
-                                      child: RotatingBorderButton(
-                                        text: "Skip Login",
-                                        controller: _borderController,
-                                        onTap: skipLogin,
-                                      ),
+                                    child: RotatingBorderButton(
+                                      text: "Skip Login",
+                                      controller: _borderController,
+                                      onTap: skipLogin,
                                     ),
                                   ),
-                                  Spacer(flex: size.height < 700 ? 1 : 2),
+                                  const Spacer(flex: 3),
                                   ShaderMask(
                                     shaderCallback: (bounds) {
                                       return LinearGradient(
@@ -295,22 +291,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     child: Text(
                                       "Hello,\nWelcome Back!",
                                       style: GoogleFonts.poppins(
-                                        fontSize: Responsive.s(context, 40),
+                                        fontSize: Responsive.s(context, 38),
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                         height: 1.1,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: Responsive.s(context, 12)),
+                                  SizedBox(height: Responsive.s(context, 8)),
                                   Text(
                                     "Your front row seat awaits.",
                                     style: GoogleFonts.poppins(
-                                      fontSize: Responsive.s(context, 15),
+                                      fontSize: Responsive.s(context, 14),
                                       color: Colors.white54,
                                     ),
                                   ),
-                                  SizedBox(height: Responsive.s(context, 40)),
+                                  const Spacer(flex: 4),
                                   PremiumAuthField(
                                     controller: emailController,
                                     label: "Email Address",
@@ -321,7 +317,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                         emailController.text.isNotEmpty,
                                     isValid: _isEmailValid,
                                   ),
-                                  SizedBox(height: Responsive.s(context, 16)),
+                                  SizedBox(height: Responsive.s(context, 14)),
                                   PremiumAuthField(
                                     controller: passwordController,
                                     label: "Password",
@@ -343,6 +339,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     alignment: Alignment.centerRight,
                                     child: TextButton(
                                       onPressed: _showForgotPassword,
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: const Size(50, 30),
+                                      ),
                                       child: Text(
                                         "Forgot Password?",
                                         style: GoogleFonts.poppins(
@@ -352,14 +352,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: Responsive.s(context, 20)),
+                                  SizedBox(height: Responsive.s(context, 12)),
                                   ScaleButton(
                                     onTap: _canSubmit ? login : null,
                                     child: AnimatedContainer(
                                       duration: const Duration(
                                         milliseconds: 300,
                                       ),
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: _canSubmit
                                             ? kTixooLightGreen
@@ -416,7 +416,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: Responsive.s(context, 24)),
+                                  const Spacer(flex: 3),
                                   Row(
                                     children: [
                                       Expanded(
@@ -445,11 +445,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: Responsive.s(context, 24)),
+                                  const Spacer(flex: 3),
                                   ScaleButton(
                                     onTap: isLoading ? null : signInWithGoogle,
                                     child: Container(
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF151515),
                                         borderRadius: BorderRadius.circular(
@@ -465,7 +465,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                         children: [
                                           Image.asset(
                                             "assets/images/googlelogo.png",
-                                            height: Responsive.s(context, 24),
+                                            height: Responsive.s(context, 22),
                                           ),
                                           SizedBox(
                                             width: Responsive.s(context, 12),
@@ -486,11 +486,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   if (Platform.isIOS) ...[
-                                    SizedBox(height: Responsive.s(context, 16)),
+                                    SizedBox(height: Responsive.s(context, 12)),
                                     ScaleButton(
                                       onTap: isLoading ? null : signInWithApple,
                                       child: Container(
-                                        height: Responsive.s(context, 56),
+                                        height: Responsive.s(context, 54),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(
@@ -504,7 +504,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                             Icon(
                                               Icons.apple,
                                               color: Colors.black,
-                                              size: Responsive.s(context, 28),
+                                              size: Responsive.s(context, 26),
                                             ),
                                             SizedBox(
                                               width: Responsive.s(context, 12),
@@ -525,11 +525,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ],
-                                  SizedBox(height: Responsive.s(context, 16)),
+                                  SizedBox(height: Responsive.s(context, 12)),
                                   ScaleButton(
                                     onTap: _showPhoneLogin,
                                     child: Container(
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF151515),
                                         borderRadius: BorderRadius.circular(
@@ -546,7 +546,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           Icon(
                                             Icons.phone_iphone_rounded,
                                             color: Colors.white,
-                                            size: Responsive.s(context, 24),
+                                            size: Responsive.s(context, 22),
                                           ),
                                           SizedBox(
                                             width: Responsive.s(context, 12),
@@ -566,10 +566,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  Spacer(flex: 3),
+                                  const Spacer(flex: 4),
                                   Padding(
                                     padding: EdgeInsets.only(
-                                      bottom: Responsive.s(context, 20.0),
+                                      bottom: Responsive.s(context, 8.0),
                                     ),
                                     child: Row(
                                       mainAxisAlignment:

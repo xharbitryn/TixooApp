@@ -57,8 +57,6 @@ class _ForgotPasswordBottomSheetState extends State<ForgotPasswordBottomSheet>
 
     try {
       final email = _emailController.text.trim();
-
-      // Check existence first
       final exists = await _authService.checkEmailExists(email);
 
       if (!exists) {
@@ -86,6 +84,8 @@ class _ForgotPasswordBottomSheetState extends State<ForgotPasswordBottomSheet>
   }
 
   void _showLocalError(String msg) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     _localMessengerKey.currentState?.removeCurrentSnackBar();
     _localMessengerKey.currentState?.showSnackBar(
       SnackBar(
@@ -98,7 +98,7 @@ class _ForgotPasswordBottomSheetState extends State<ForgotPasswordBottomSheet>
         ),
         backgroundColor: kTixooLightGreen,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        margin: EdgeInsets.only(bottom: bottomInset + 20, left: 16, right: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -117,16 +117,19 @@ class _ForgotPasswordBottomSheetState extends State<ForgotPasswordBottomSheet>
       key: _localMessengerKey,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
+        // 🚀 FIX: Prevent Scaffold shrinking, use dynamic padding below instead
+        resizeToAvoidBottomInset: false,
         body: Align(
           alignment: Alignment.bottomCenter,
-          child: Center(
+          child: SingleChildScrollView(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 500),
+              width: double.infinity,
               padding: EdgeInsets.only(
                 left: 24,
                 right: 24,
                 top: 24,
+                // 🚀 FIX: Beautifully glides up when the keyboard is summoned
                 bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
               decoration: const BoxDecoration(
@@ -134,11 +137,9 @@ class _ForgotPasswordBottomSheetState extends State<ForgotPasswordBottomSheet>
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 border: Border(top: BorderSide(color: Colors.white10)),
               ),
-              child: SingleChildScrollView(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _isSent ? _buildSuccessView() : _buildInputView(),
-                ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _isSent ? _buildSuccessView() : _buildInputView(),
               ),
             ),
           ),

@@ -200,17 +200,17 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
     final double paddingValue = Responsive.s(context, 24.0);
 
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: CinematicBackground(
           controller: _liquidController,
           child: SafeArea(
+            // 🚀 FIX: Ensures safe stretching or gentle scrolling without overflowing
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
@@ -225,6 +225,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                           constraints: Responsive.formConstraints(context),
                           padding: EdgeInsets.symmetric(
                             horizontal: paddingValue,
+                            vertical: 16,
                           ),
                           child: FadeTransition(
                             opacity: _fadeAnimation,
@@ -233,9 +234,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Spacer(flex: size.height < 700 ? 1 : 2),
-
-                                  // HEADER
+                                  const Spacer(flex: 3),
                                   ShaderMask(
                                     shaderCallback: (bounds) {
                                       return LinearGradient(
@@ -263,25 +262,22 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                     child: Text(
                                       "Create\nAccount",
                                       style: GoogleFonts.poppins(
-                                        fontSize: Responsive.s(context, 40),
+                                        fontSize: Responsive.s(context, 38),
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                         height: 1.1,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: Responsive.s(context, 12)),
+                                  SizedBox(height: Responsive.s(context, 8)),
                                   Text(
                                     "Join the community now!",
                                     style: GoogleFonts.poppins(
-                                      fontSize: Responsive.s(context, 15),
+                                      fontSize: Responsive.s(context, 14),
                                       color: Colors.white54,
                                     ),
                                   ),
-
-                                  SizedBox(height: Responsive.s(context, 40)),
-
-                                  // INPUTS
+                                  const Spacer(flex: 4),
                                   PremiumAuthField(
                                     controller: _emailController,
                                     label: "Email Address",
@@ -292,8 +288,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                     showValidation:
                                         _emailController.text.isNotEmpty,
                                   ),
-                                  SizedBox(height: Responsive.s(context, 16)),
-
+                                  SizedBox(height: Responsive.s(context, 14)),
                                   PremiumAuthField(
                                     controller: _passwordController,
                                     label: "Create Password",
@@ -311,8 +306,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                     showValidation:
                                         _passwordController.text.isNotEmpty,
                                   ),
-                                  SizedBox(height: Responsive.s(context, 16)),
-
+                                  SizedBox(height: Responsive.s(context, 14)),
                                   PremiumAuthField(
                                     controller: _confirmPasswordController,
                                     label: "Confirm Password",
@@ -324,17 +318,14 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         .text
                                         .isNotEmpty,
                                   ),
-
-                                  SizedBox(height: Responsive.s(context, 32)),
-
-                                  // CREATE BUTTON
+                                  SizedBox(height: Responsive.s(context, 24)),
                                   ScaleButton(
                                     onTap: _canSubmit ? _signUp : null,
                                     child: AnimatedContainer(
                                       duration: const Duration(
                                         milliseconds: 300,
                                       ),
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: _canSubmit
                                             ? kTixooLightGreen
@@ -391,10 +382,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
-                                  SizedBox(height: Responsive.s(context, 24)),
-
-                                  // DIVIDER
+                                  const Spacer(flex: 3),
                                   Row(
                                     children: [
                                       Expanded(
@@ -423,14 +411,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       ),
                                     ],
                                   ),
-
-                                  SizedBox(height: Responsive.s(context, 24)),
-
-                                  // SOCIAL BUTTONS
+                                  const Spacer(flex: 3),
                                   ScaleButton(
                                     onTap: isLoading ? null : signInWithGoogle,
                                     child: Container(
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF151515),
                                         borderRadius: BorderRadius.circular(
@@ -446,7 +431,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         children: [
                                           Image.asset(
                                             "assets/images/googlelogo.png",
-                                            height: Responsive.s(context, 24),
+                                            height: Responsive.s(context, 22),
                                           ),
                                           SizedBox(
                                             width: Responsive.s(context, 12),
@@ -467,11 +452,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   if (Platform.isIOS) ...[
-                                    SizedBox(height: Responsive.s(context, 16)),
+                                    SizedBox(height: Responsive.s(context, 12)),
                                     ScaleButton(
                                       onTap: isLoading ? null : signInWithApple,
                                       child: Container(
-                                        height: Responsive.s(context, 56),
+                                        height: Responsive.s(context, 54),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(
@@ -485,7 +470,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                             Icon(
                                               Icons.apple,
                                               color: Colors.black,
-                                              size: Responsive.s(context, 28),
+                                              size: Responsive.s(context, 26),
                                             ),
                                             SizedBox(
                                               width: Responsive.s(context, 12),
@@ -506,11 +491,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ],
-                                  SizedBox(height: Responsive.s(context, 16)),
+                                  SizedBox(height: Responsive.s(context, 12)),
                                   ScaleButton(
                                     onTap: _showPhoneLogin,
                                     child: Container(
-                                      height: Responsive.s(context, 56),
+                                      height: Responsive.s(context, 54),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF151515),
                                         borderRadius: BorderRadius.circular(
@@ -527,7 +512,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                           Icon(
                                             Icons.phone_iphone_rounded,
                                             color: Colors.white,
-                                            size: Responsive.s(context, 24),
+                                            size: Responsive.s(context, 22),
                                           ),
                                           SizedBox(
                                             width: Responsive.s(context, 12),
@@ -547,13 +532,10 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-
-                                  Spacer(flex: 3),
-
-                                  // FOOTER
+                                  const Spacer(flex: 4),
                                   Padding(
                                     padding: EdgeInsets.only(
-                                      bottom: Responsive.s(context, 20.0),
+                                      bottom: Responsive.s(context, 8.0),
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
